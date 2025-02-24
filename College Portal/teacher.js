@@ -236,6 +236,14 @@ addMarksForm.addEventListener('submit', function (event) {
   const year = document.getElementById('year').value;
   const marks = parseFloat(document.getElementById('marks').value);
 
+  document.addEventListener('DOMContentLoaded', function () {
+    const lastPage = localStorage.getItem('lastVisitedPage');
+
+    if (lastPage && lastPage !== window.location.pathname) {
+        window.location.href = lastPage;
+    }
+
+});
   // Add new student
   students.push({ rollNo, name, branch, year, marks, grade: '' });
   populateStudentsTable(students);

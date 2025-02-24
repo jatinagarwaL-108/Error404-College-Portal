@@ -359,6 +359,70 @@ let students = [
     });
   }
   
+  // Import Students
+importStudentsButton.addEventListener('click', function () {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+              try {
+                  const importedData = JSON.parse(e.target.result);
+                  if (Array.isArray(importedData)) {
+                      students = [...students, ...importedData];
+                      populateStudentsTable(students);
+                      alert('Students imported successfully!');
+                  } else {
+                      alert('Invalid file format!');
+                  }
+              } catch (error) {
+                  alert('Error parsing JSON file!');
+              }
+          };
+          reader.readAsText(file);
+      }
+  });
+  fileInput.click();
+});
+
+// Export Students
+exportStudentsButton.addEventListener('click', function () {
+  const dataStr = JSON.stringify(students, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'students.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  alert('Students exported successfully!');
+});
+
+// Apply Filters
+applyFiltersButton.addEventListener('click', function () {
+  let filteredStudents = students;
+  const branch = filterBranch.value.trim();
+  const year = filterYear.value.trim();
+  const rollNo = filterRollNo.value.trim();
+
+  if (branch) {
+      filteredStudents = filteredStudents.filter(student => student.branch.toLowerCase() === branch.toLowerCase());
+  }
+  if (year) {
+      filteredStudents = filteredStudents.filter(student => student.year === year);
+  }
+  if (rollNo) {
+      filteredStudents = filteredStudents.filter(student => student.rollNo === rollNo);
+  }
+  
+  populateStudentsTable(filteredStudents);
+});
+
+
   // Populate answer sheets table
   function populateAnswerSheetsTable(data) {
     answerSheetsTableBody.innerHTML = '';
@@ -411,6 +475,21 @@ let students = [
     document.body.classList.toggle('dark-mode');
   });
   
+  // Save the last visited page before navigating to the dashboard
+document.addEventListener("DOMContentLoaded", function () {
+  if (!sessionStorage.getItem("lastPage")) {
+      sessionStorage.setItem("lastPage", document.referrer || "index.html"); // Default to index.html if no referrer
+  }
+});
+
+// Logout button functionality
+document.getElementById("logout").addEventListener("click", function () {
+  let lastPage = sessionStorage.getItem("lastPage") || "index.html"; // Redirect to last page or default
+  sessionStorage.removeItem("lastPage"); // Clear session storage after logout
+  window.location.href = lastPage;
+});
+
+
   // Initial load
   document.addEventListener('DOMContentLoaded', function () {
     populateStudentsTable(students);
